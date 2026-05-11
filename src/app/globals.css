@@ -1,26 +1,404 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ============================================================
+   TERRALENS — Cartographic identity
+   Palette is hypsometric: void → ocean → vegetation → sand → peak.
+   Signal accent is a single warm orange, used sparingly.
+   ============================================================ */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Surfaces — deep void, higher contrast than before */
+  --bg: #060a0f;
+  --bg-elevated: #0d1420;
+  --bg-soft: #131c2e;
+  --bg-warm: #180f0a;
+
+  /* Foregrounds — warmer cream, more distinct from bg */
+  --fg: #f0e6d2;
+  --muted: #847b6e;
+  --muted-soft: #544f46;
+
+  /* Borders — tighter, crisper */
+  --border: rgba(240, 230, 210, 0.07);
+  --border-strong: rgba(240, 230, 210, 0.16);
+
+  /* Accents — puncher orange signal */
+  --accent: #f55a1a;
+  --accent-bright: #ff7a42;
+  --accent-soft: rgba(245, 90, 26, 0.12);
+  --accent-ring: rgba(245, 90, 26, 0.30);
+
+  /* Hypsometric supports */
+  --accent-blue: #3d82b0;
+  --accent-teal: #5c8450;
+  --warm: #d4bc8e;
+  --warm-soft: rgba(212, 188, 142, 0.12);
+  --peak: #ede5d4;
+  --danger: #c4432b;
+
+  --surface: var(--bg-elevated);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-soft: var(--bg-soft);
+  --color-bg-warm: var(--bg-warm);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-muted-soft: var(--muted-soft);
+  --color-border-soft: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-teal: var(--accent-teal);
+  --color-warm: var(--warm);
+  --color-warm-soft: var(--warm-soft);
+  --color-peak: var(--peak);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-ring);
+  color: var(--peak);
+}
+
+/* ============================================================
+   Type — Space Grotesk for display, Inter for body, JetBrains
+   Mono for coordinates. Mixed-case display (no shouting).
+   ============================================================ */
+
+.font-display {
+  font-family: var(--font-display), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+
+.font-display em {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.display-xl {
+  font-family: var(--font-display), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  text-transform: none;
+}
+
+.display-lg {
+  font-family: var(--font-display), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  text-transform: none;
+}
+
+.display {
+  font-family: var(--font-display), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  text-transform: none;
+}
+
+.tagline {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-style: normal;
+  text-transform: none;
+}
+
+/* Coordinate / label / metadata style — mono, wide-tracked, lowercase */
+.eyebrow {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Coordinate readout — mono, tabular */
+.coord {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hypsometric gradient text — sand → orange → ocean (left to right) */
+.gradient-text {
+  background: linear-gradient(
+    100deg,
+    var(--warm) 0%,
+    var(--accent-bright) 45%,
+    var(--accent) 70%,
+    var(--accent-blue) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ============================================================
+   Cartographic motifs
+   ============================================================ */
+
+/* Hypsometric atmospheric backdrop — replaces the cyan aurora.
+   Suggests deep ocean, distant landmass, faint sand light. */
+.aurora-bg {
+  background:
+    radial-gradient(60% 50% at 18% 30%, rgba(74, 141, 184, 0.10), transparent 60%),
+    radial-gradient(50% 40% at 82% 20%, rgba(255, 107, 53, 0.07), transparent 60%),
+    radial-gradient(45% 45% at 65% 85%, rgba(107, 142, 90, 0.06), transparent 60%),
+    radial-gradient(80% 60% at 50% 110%, rgba(217, 199, 154, 0.04), transparent 70%),
+    var(--bg);
+}
+
+/* Latitude graticule bands — replaces the cyan weather strip.
+   Faint horizontal rules every ~80px, like parallels on a map. */
+.weather-bands {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 79px,
+    rgba(244, 236, 219, 0.04) 79px,
+    rgba(244, 236, 219, 0.04) 80px
+  );
+}
+
+/* Graticule grid — replaces the dot grid.
+   Crosshair pattern of tiny + marks where lat/lon would intersect. */
+.dot-grid {
+  background-image:
+    linear-gradient(0deg, transparent 5px, rgba(244, 236, 219, 0.045) 5px, rgba(244, 236, 219, 0.045) 6px, transparent 6px),
+    linear-gradient(90deg, transparent 5px, rgba(244, 236, 219, 0.045) 5px, rgba(244, 236, 219, 0.045) 6px, transparent 6px);
+  background-size: 11px 11px, 11px 11px;
+  background-position: -5px -5px;
+}
+
+/* Isoline pattern — concentric contour lines, can be applied as decoration */
+.isolines {
+  background-image: radial-gradient(
+    ellipse 80% 60% at center,
+    transparent 0,
+    transparent 19%,
+    rgba(244, 236, 219, 0.04) 19%,
+    rgba(244, 236, 219, 0.04) 20%,
+    transparent 20%,
+    transparent 34%,
+    rgba(244, 236, 219, 0.05) 34%,
+    rgba(244, 236, 219, 0.05) 35%,
+    transparent 35%,
+    transparent 49%,
+    rgba(244, 236, 219, 0.05) 49%,
+    rgba(244, 236, 219, 0.05) 50%,
+    transparent 50%,
+    transparent 64%,
+    rgba(244, 236, 219, 0.04) 64%,
+    rgba(244, 236, 219, 0.04) 65%,
+    transparent 65%,
+    transparent 79%,
+    rgba(244, 236, 219, 0.03) 79%,
+    rgba(244, 236, 219, 0.03) 80%,
+    transparent 80%
+  );
+}
+
+/* Hypsometric stratum — horizontal layer-cake gradient,
+   used as a bottom-edge accent on hero / CTA panels. */
+.strata {
+  background: linear-gradient(
+    to top,
+    var(--accent-blue) 0%,
+    var(--accent-blue) 22%,
+    var(--accent-teal) 22%,
+    var(--accent-teal) 44%,
+    var(--warm) 44%,
+    var(--warm) 70%,
+    var(--accent) 70%,
+    var(--accent) 86%,
+    var(--peak) 86%,
+    var(--peak) 100%
+  );
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+  background: var(--bg-soft);
+}
+
+/* ============================================================
+   Cards / surfaces — flatter, sharper corners, atlas-page feel
+   ============================================================ */
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.card-hover {
+  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.card-hover:hover {
+  border-color: var(--accent);
+  background: var(--bg-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 20px 40px -20px rgba(245, 90, 26, 0.3);
+}
+
+/* ============================================================
+   Buttons — squared off, no glow halo. Primary = signal orange.
+   ============================================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  background: var(--accent);
+  color: #1a0a04;
+  border-radius: 4px;
+  font-family: var(--font-sans), Inter, sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  border: 1px solid var(--accent);
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+
+.btn-primary:hover {
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px -8px rgba(255, 107, 53, 0.5);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  font-family: var(--font-sans), Inter, sans-serif;
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease,
+    transform 150ms ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.7rem 0.95rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-soft);
+  color: var(--fg);
+  font-size: 0.875rem;
+  font-family: var(--font-sans), Inter, sans-serif;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.input-field::placeholder {
+  color: var(--muted-soft);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.hairline {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Legacy class name retained — now a warm contour pulse, not a cyan glow. */
+.glow-cyan {
+  box-shadow: 0 0 0 1px var(--border-strong), 0 30px 80px -20px rgba(255, 107, 53, 0.15);
+}
+
+/* ============================================================
+   Brand mark — globe with graticule, replaces twin-arc crescent.
+   The .brand-mark CSS-only fallback is kept for older inner-page
+   markup that still references it.
+   ============================================================ */
+.brand-mark {
+  position: relative;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+}
+
+.brand-mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border-top: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: scaleY(0.45);
+}
+
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: currentColor;
+  transform: translateX(-50%);
+  opacity: 0.7;
 }

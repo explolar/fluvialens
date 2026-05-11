@@ -10,7 +10,6 @@ const nav = [
   { href: "/projections", label: "Projections" },
   { href: "/ask", label: "Ask" },
   { href: "/datasets", label: "Datasets" },
-  { href: "/developers", label: "API" },
 ];
 
 export default function Header() {

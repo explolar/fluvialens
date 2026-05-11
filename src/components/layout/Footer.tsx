@@ -50,7 +50,6 @@ export default function Footer() {
             title="Reference"
             links={[
               { href: "/resources", label: "Methodology" },
-              { href: "/developers", label: "Developer API" },
               { href: "/colophon", label: "Colophon" },
             ]}
           />

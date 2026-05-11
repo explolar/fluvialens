@@ -19,15 +19,12 @@ export async function GET(req: NextRequest) {
       { status: 400 },
     );
   }
-  // Open-Meteo Climate API uses HighResMIP runs which end in 2050.
+  // CCKP CMIP6 ensemble covers 2015-2100 (projection period).
   const endYear = Number(end.slice(0, 4));
   const startYear = Number(start.slice(0, 4));
-  if (endYear > 2050 || startYear < 1950) {
+  if (endYear > 2100 || startYear < 2015) {
     return NextResponse.json(
-      {
-        error:
-          "Projection range must be between 1950 and 2050 (HighResMIP CMIP6 ensemble limit).",
-      },
+      { error: "Projection range must be between 2015 and 2100 (CMIP6 ensemble)." },
       { status: 400 },
     );
   }

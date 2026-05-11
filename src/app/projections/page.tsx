@@ -350,7 +350,10 @@ function SingleResult({ data }: { data: ProjectionSummary }) {
       <div className="mt-8 card p-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
           <div>
-            <p className="eyebrow">{data.scenarioLabel}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="eyebrow">{data.scenarioLabel}</p>
+              <ResolutionBadge data={data} />
+            </div>
             <h3 className="mt-1 font-display text-2xl">Annual climate projection</h3>
           </div>
           <span className="eyebrow text-muted-soft">
@@ -406,6 +409,27 @@ function CompareResult({ series }: { series: ProjectionSummary[] }) {
         ))}
       </div>
     </>
+  );
+}
+
+function ResolutionBadge({ data }: { data: ProjectionSummary }) {
+  if (data.resolution === "point") {
+    return (
+      <span
+        title="High-resolution CMIP6 HighResMIP ensemble at exact coordinates (Open-Meteo)."
+        className="coord text-[0.6rem] px-1.5 py-0.5 rounded-sm border border-accent/40 text-accent bg-accent-soft"
+      >
+        POINT
+      </span>
+    );
+  }
+  return (
+    <span
+      title={`Country-level CMIP6 ensemble median${data.countryCode ? ` for ${data.countryCode}` : ""} (World Bank CCKP). Point-level source was unavailable.`}
+      className="coord text-[0.6rem] px-1.5 py-0.5 rounded-sm border border-warm/40 text-warm bg-warm/10"
+    >
+      COUNTRY · {data.countryCode ?? "?"}
+    </span>
   );
 }
 

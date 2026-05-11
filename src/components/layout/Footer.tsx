@@ -49,7 +49,6 @@ export default function Footer() {
           <FooterCol
             title="Reference"
             links={[
-              { href: "/stories", label: "Stories" },
               { href: "/resources", label: "Methodology" },
               { href: "/developers", label: "Developer API" },
               { href: "/colophon", label: "Colophon" },
